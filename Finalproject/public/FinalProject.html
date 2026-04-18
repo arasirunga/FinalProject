@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketplace Hub</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: #111827;
+      color: white;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .navbar h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    /* Search Section */
+    .search-section {
+      margin: 30px auto;
+      width: 90%;
+      max-width: 800px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-section input {
+      flex: 1;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .search-section button {
+      padding: 14px 24px;
+      background: #2563eb;
+      color: white;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .search-section button:hover {
+      background: #1e4ec6;
+    }
+
+    /* Product Grid */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 25px;
+      padding: 30px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Product Cards */
+    .product-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      transition: 0.3s ease;
+      cursor: pointer;
+    }
+
+    .product-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+    }
+
+    .product-card img {
+      width: 80px;
+      height: 80px;
+    }
+
+    .product-card h3 {
+      margin-top: 15px;
+      font-size: 18px;
+      color: #111;
+    }
+
+    .product-card button {
+      margin-top: 10px;
+      background: #059669;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .product-card button:hover {
+      background: #047857;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="navbar">
+    <h2>MINES & LOGISTICS HUB</h2>
+    <button onclick="logout()" style="background:#dc2626; color:white; padding:8px 16px; border:none; border-radius:8px; cursor:pointer;">
+      Logout
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-section">
+    <input type="text" id="searchInput" placeholder="Search for Copper, Zinc, Cobalt..." oninput="filterProducts()">
+    <button>Search</button>
+  </div>
+
+  <!-- Product Grid -->
+  <div class="product-grid" id="productGrid">
+    
+  </div>
+<script>
+  // Available products
+  const products = [
+    { name: "Copper Concentrate", image: "https://cdn-icons-png.flaticon.com/512/3179/3179068.png" },
+    { name: "Zinc Concentrate", image: "https://cdn-icons-png.flaticon.com/512/3179/3179068.png" },
+    { name: "Cobalt Ore", image: "https://cdn-icons-png.flaticon.com/512/3179/3179068.png" },
+    { name: "Manganese", image: "https://cdn-icons-png.flaticon.com/512/3179/3179068.png" },
+    { name: "Copper Cathodes", image: "https://cdn-icons-png.flaticon.com/512/3179/3179068.png" }
+  ];
+
+  const productGrid = document.getElementById("productGrid");
+
+  // Render product cards
+  function loadProducts(list) {
+    productGrid.innerHTML = "";
+    list.forEach(item => {
+      const card = `
+        <div class="product-card">
+          <img src="${item.image}">
+          <h3>${item.name}</h3>
+          <button onclick="orderProduct('${item.name}')">Order Now</button>
+        </div>
+      `;
+      productGrid.innerHTML += card;
+    });
+  }
+
+  loadProducts(products);
+
+  // Search filter
+  function filterProducts() {
+    const value = document.getElementById("searchInput").value.toLowerCase();
+    const filtered = products.filter(p => p.name.toLowerCase().includes(value));
+    loadProducts(filtered);
+  }
+
+  // Redirect to order page
+  function orderProduct(productName) {
+    window.location.href = `order.html?product=${encodeURIComponent(productName)}`;
+  }
+
+  function logout() {
+    window.location.href = "login.html";
+  }
+</script>
+
+</body>
+</html>

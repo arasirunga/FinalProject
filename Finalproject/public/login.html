@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Page</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0d6efd, #6dc0ff);
+      padding: 20px;
+    }
+
+    .login-container {
+      width: 95%;
+      max-width: 900px;
+      display: flex;
+      border-radius: 15px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .left-side {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .left-side h1 {
+      font-size: 32px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .left-side p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .right-side {
+      flex: 1;
+      padding: 45px;
+      background: rgba(255, 255, 255, 0.85);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .right-side h2 {
+      font-size: 28px;
+      margin-bottom: 25px;
+      color: #003f7f;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      font-size: 15px;
+      color: #333;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      transition: 0.2s;
+      background: #ffffff;
+    }
+
+    .form-group input:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 6px rgba(13, 110, 253, 0.4);
+      outline: none;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #0d6efd;
+      color: white;
+      cursor: pointer;
+      transition: 0.25s;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
+      background: #084298;
+    }
+
+    .error-message {
+      margin-top: 10px;
+      color: red;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .login-container {
+        flex-direction: column;
+      }
+      .left-side {
+        padding: 30px;
+      }
+      .right-side {
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-container">
+
+    <!-- LEFT SIDE -->
+    <div class="left-side">
+      <div>
+        <h1>WELCOME TO LOGISTICS HUB</h1>
+        <p>Request minerals. Get instant logistics quotations.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-side">
+      <h2>Login</h2>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="Enter your email" required />
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input id="password" type="password" placeholder="Enter your password" required />
+        </div>
+
+        <button class="login-btn" type="submit">Login</button>
+
+        <div id="errorBox" class="error-message"></div>
+      </form>
+    </div>
+
+  </div>
+
+</body>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const errorBox = document.getElementById("errorBox");
+
+    try {
+        const response = await fetch("http://localhost:3000/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+          
+
+
+        
+        const result = await response.json();
+
+
+            if (result.success) {
+  localStorage.setItem("user", JSON.stringify(result.user));
+  const role = (result.user?.role || "").toString().trim().toUpperCase();
+  if (role === "ADMIN") {
+    window.location.href = "admin.html";
+  } else {
+    window.location.href = "FinalProject.html";
+  }
+        } else {
+            errorBox.style.display = "block";
+            errorBox.textContent = result.message;
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        errorBox.style.display = "block";
+        errorBox.textContent = "Unable to connect to server.";
+    }
+});
+</script>
+
+</html>

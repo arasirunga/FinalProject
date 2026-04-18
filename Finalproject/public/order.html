@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Place Order</title>
+
+  <style>
+    .home-btn {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+}
+
+.home-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.45);
+}
+
+.home-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+}
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+    }
+
+    .navbar {
+      background: #111827;
+      color: white;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .order-container {
+      background: white;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .submit-btn {
+      background: #059669;
+      color: white;
+    }
+
+    .submit-btn:hover {
+      background: #047857;
+    }
+
+    .back-btn {
+      background: #2563eb;
+      color: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      display: none;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #f3f4f6;
+    }
+
+    .total-box {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="navbar">
+    <h2>ORDER COMMODITY</h2>
+    <button class="home-btn" onclick="goHome()">Home</button>
+
+  </div>
+
+  <div class="order-container">
+    <h2>Order Details</h2>
+
+    <div class="form-group">
+      <label>Commodity</label>
+      <input type="text" id="commodityName" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Tonnage Required (MT)</label>
+      <input type="number" id="tonnage" min="1">
+    </div>
+
+    <div class="form-group">
+      <label>Mining Site (Origin)</label>
+      <select id="origin">
+        <option value="">Select origin</option>
+        <option value="Kolwezi Mine">Kolwezi Mine</option>
+        <option value="Kakula Mine">Kakula Mine</option>
+        <option value="Kamoa Mine">Kamoa Mine</option>
+        <option value="Lubumbashi">Lubumbashi Warehouse</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Destination Port</label>
+      <select id="destination">
+        <option value="">Select destination</option>
+        <option value="Durban Port">Durban Port</option>
+        <option value="Beira Port">Beira Port</option>
+        <option value="Dar es Salaam">Dar es Salaam</option>
+        <option value="Walvis Bay">Walvis Bay</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Incoterm</label>
+      <select id="incoterm">
+        <option value="">Choose Incoterm</option>
+        <option value="EXW">EXW</option>
+        <option value="FOB">FOB</option>
+        <option value="CFR">CFR</option>
+        <option value="OFR">OFR</option>
+      </select>
+    </div>
+
+    <button class="submit-btn" onclick="submitOrder()">Calculate Logistics Price</button>
+    <button class="back-btn" onclick="goHome()">Back to Home</button>
+<button class="submit-btn" onclick="placeOrder()">
+  Confirm & Place Order
+</button>
+
+    <!-- Rates Table -->
+    <table id="rateTable">
+      <thead>
+        <tr>
+          <th>Cost Item</th>
+          <th>Rate / MT</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="rateTableBody"></tbody>
+    </table>
+
+    <!-- Grand Total -->
+    <div class="total-box">
+      Grand Total: USD <span id="grandTotal">0.00</span>
+    </div>
+  </div>
+
+<table id="rateTable"
+       style="display:none; width:600px; margin:30px auto; border-collapse: collapse; background:white; box-shadow:0 8px 20px rgba(0,0,0,0.1); border-radius:12px; overflow:hidden;">
+
+  <thead>
+    <tr style="background:#f3f4f6;">
+      <th style="padding:12px; border-bottom:1px solid #ddd;">Cost Item</th>
+      <th style="padding:12px; border-bottom:1px solid #ddd;">Rate / MT</th>
+      <th style="padding:12px; border-bottom:1px solid #ddd;">Total</th>
+    </tr>
+  </thead>
+
+  <tbody id="rateTableBody"></tbody>
+
+  <tfoot>
+    <tr style="background:#f9fafb;">
+      <td colspan="2" style="padding:12px; text-align:right; font-weight:bold;">
+        Grand Total
+      </td>
+      <td style="padding:12px; font-weight:bold; color:#059669;">
+        USD <span id="grandTotal">0.00</span>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+
+
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const commodity = urlParams.get("product");
+
+    if (commodity) {
+      document.getElementById("commodityName").value = commodity;
+    }
+
+    function goHome() {
+      window.location.href = "FinalProject.html";
+    }
+
+  async function submitOrder() {
+  const tonnage = Number(document.getElementById("tonnage").value);
+  const origin = document.getElementById("origin").value;
+  const destination = document.getElementById("destination").value;
+  const incoterm = document.getElementById("incoterm").value;
+
+  if (!tonnage || !origin || !destination || !incoterm) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  const response = await fetch(
+    `/api/rates?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&incoterm=${incoterm}`
+  );
+
+  const rates = await response.json();
+
+  if (rates.length === 0) {
+    alert("No rates found.");
+    return;
+  }
+
+  const tbody = document.getElementById("rateTableBody");
+  tbody.innerHTML = "";
+
+  let total = 0;
+
+  rates.forEach(r => {
+    const rate = Number(r.rate_per_mt);
+    const lineTotal = rate * tonnage;
+    total += lineTotal;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${r.cost_item}</td>
+        <td>${rate.toFixed(2)}</td>
+        <td>${lineTotal.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("grandTotal").innerText = total.toFixed(2);
+  document.getElementById("rateTable").style.display = "table";
+}
+  </script>
+
+
+<script>
+async function placeOrder() {
+  const commodity = document.getElementById("commodityName").value;
+  const tonnage = Number(document.getElementById("tonnage").value);
+  const origin = document.getElementById("origin").value;
+  const destination = document.getElementById("destination").value;
+  const incoterm = document.getElementById("incoterm").value;
+  const total = Number(document.getElementById("grandTotal").innerText);
+
+  if (!total || total <= 0) {
+    alert("Please calculate logistics price first.");
+    return;
+  }
+
+  const response = await fetch("/api/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+  body: JSON.stringify({
+  user_id: 1,               // TEMP until login/session exists
+  commodity,
+  tonnage,
+  origin,
+  destination,
+  incoterm,
+  total_price: total        // MUST match backend
+})
+
+  });
+
+  const result = await response.json();
+
+  if (response.ok) {
+    alert(`Order placed successfully! Order ID: ${result.order_id}`);
+  } else {
+    alert("Failed to place order.");
+  }
+}
+</script>
+
+</body>
+</html>
+
+

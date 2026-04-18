@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard</title>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  body {
+    background: #0f172a;
+    color: #f1f5f9;
+    padding: 40px;
+  }
+
+  h1 {
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  .orders-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .order-card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+  }
+
+  .order-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+
+  .order-id {
+    font-weight: bold;
+    color: #38bdf8;
+  }
+
+  .status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .pending {
+    background: #facc15;
+    color: #000;
+  }
+
+  .completed {
+    background: #22c55e;
+    color: #fff;
+  }
+
+  .order-details {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .total {
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .logout-btn {
+    margin-bottom: 30px;
+    padding: 10px 20px;
+    border: none;
+    background: #ef4444;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .logout-btn:hover {
+    background: #dc2626;
+  }
+
+  .confirm-btn {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: #22c55e;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s ease;
+  }
+
+  .confirm-btn:hover {
+    background: #16a34a;
+  }
+
+  .confirm-btn.unconfirm {
+    background: #ef4444;
+  }
+
+  .confirm-btn.unconfirm:hover {
+    background: #dc2626;
+  }
+</style>
+</head>
+
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user || user.role !== "ADMIN") {
+  window.location.href = "login.html";
+}
+
+
+
+</script>
+<body>
+
+<button class="logout-btn" onclick="logout()">Logout</button>
+
+<h1>Admin - Orders Dashboard</h1>
+
+<div class="orders-container" id="ordersContainer"></div>
+
+<script>
+async function loadOrders() {
+  try {
+    const response = await fetch('/api/orders?role=ADMIN');
+    const orders = await response.json();
+
+    const container = document.getElementById('ordersContainer');
+    container.innerHTML = '';
+
+    orders.forEach(order => {
+      const card = document.createElement('div');
+      card.className = 'order-card';
+
+      card.innerHTML = `
+        <div class="order-header">
+          <div class="order-id">Order #${order.id}</div>
+          <div class="status ${order.status.toLowerCase()}">
+            ${order.status}
+          </div>
+        </div>
+
+        <div class="order-details">
+          <div><strong>Customer:</strong> ${order.client_name}</div>
+          <div><strong>Email:</strong> ${order.email}</div>
+          <div><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</div>
+        </div>
+
+        <div class="total">
+          Total: €${order.total_price}
+        </div>
+
+        <button class="confirm-btn ${order.status === 'CONFIRMED' ? 'unconfirm' : ''}" onclick="toggleOrderStatus(${order.id}, '${order.status}')">
+          ${order.status === 'CONFIRMED' ? 'Unconfirm Order' : 'Confirm Order'}
+        </button>
+      `;
+
+      container.appendChild(card);
+    });
+
+  } catch (error) {
+    console.error('Error loading orders:', error);
+  }
+}
+
+async function toggleOrderStatus(orderId, currentStatus) {
+  const newStatus = currentStatus === 'CONFIRMED' ? 'PENDING' : 'CONFIRMED';
+  const actionText = newStatus === 'CONFIRMED' ? 'confirm' : 'unconfirm';
+  
+  if (confirm(`Are you sure you want to ${actionText} this order?`)) {
+    try {
+      const response = await fetch(`/api/orders/${orderId}/toggle-status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(`Order ${actionText}ed successfully!`);
+        loadOrders(); // Reload orders
+      } else {
+        alert('Failed to update order: ' + (result.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error updating order:', error);
+      alert('Error updating order');
+    }
+  }
+}
+
+async function logout() {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/login.html';
+}
+
+loadOrders();
+</script>
+
+</body>
+</html>
+
+
+
+
+
