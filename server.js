@@ -5,11 +5,9 @@ const { Pool } = require('pg');
 
 const app = express();
 app.use(cors());
-app.use(express.static("public"));
 const path = require("path");
 
-app.use(express.static(path.join(__dirname, "")));
-
+app.use(express.static(path.join(__dirname)));
 app.use(bodyParser.json());
 
 // PostgreSQL connection
@@ -30,7 +28,9 @@ app.get("/ping", (req, res) => {
   res.send("pong");
 });
 
-
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
 
 app.post("/login", async (req, res) => {
   const { email, password} = req.body;
@@ -232,6 +232,7 @@ app.post("/api/orders/:id/toggle-status", async (req, res) => {
 /* =========================
    SERVER START
 ========================= */
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
